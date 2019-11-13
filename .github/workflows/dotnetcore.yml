@@ -20,6 +20,6 @@ jobs:
     - name: pack for nuget
       run: dotnet pack -c Release -o out Microsoft.Identity.Web prerel
     - name: Publish nuget to github registry
-      run: dotnet nuget push src/bin/Release/*.nupkg -s https://nuget.pkg.github.com/jpda/index.json -k ${GITHUB_TOKEN}  
-        env:
+      run: dotnet nuget push bin/Release/*.nupkg -s https://nuget.pkg.github.com/jpda/index.json -k ${GITHUB_TOKEN}  
+      env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
