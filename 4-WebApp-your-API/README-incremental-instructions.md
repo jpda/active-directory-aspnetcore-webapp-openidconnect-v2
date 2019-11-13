@@ -207,7 +207,7 @@ Add a reference to the `Microsoft.Identity.Web` library if not already present. 
 1. Update the `configureServices` method in `startup.cs` to add the MSAL library and a token cache.
 
 ```CSharp
-    services.AddAzureAdV2Authentication(Configuration)
+    services.AddMicrosoftIdentityPlatformAuthentication(Configuration)
             .AddMsal(new string[] { Configuration["TodoList:TodoListScope"] })
             .AddInMemoryTokenCaches();
  ```
@@ -249,11 +249,17 @@ using Microsoft.Identity.Web.Client.TokenCacheProviders;
   with
 
   ```Csharp
-    services.AddProtectWebApiWithMicrosoftIdentityPlatformV2(Configuration)
+    services.AddProtectedWebApi(Configuration)
          .AddInMemoryTokenCaches();
   ```
+  
+  - Add the method **app.UseAuthentication()** before **app.UseMvc()** in the `Configure` method
 
-  `AddProtectWebApiWithMicrosoftIdentityPlatformV2` does the following:
+  ```Csharp
+     app.UseAuthentication();
+     app.UseMvc();
+  ```
+  `AddProtectedWebApi` does the following:
   - add the **Jwt**BearerAuthenticationScheme (Note the replacement of **BearerAuthenticationScheme** by **Jwt**BearerAuthenticationScheme)
   - set the authority to be the Microsoft identity platform 
   - sets the audiences to validate
@@ -266,15 +272,6 @@ The implementations of these classes are in the Microsoft.Identity.Web library (
    ```CSharp
         // Add APIs
         services.AddTodoListService(Configuration);
-  ```
-
-- At the beginning of the `Configure` method, insert `app.UseSession()`. This code ensures that the session exists for the session-based token cache to work properly. You can skip this if you do not plan to use the session based token cache.
-
-  ```CSharp
-  public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-  {
-    app.UseSession();
-    ...
   ```
 
 ### Create the TodoListController.cs file

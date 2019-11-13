@@ -172,7 +172,7 @@ Open the solution in Visual Studio to configure the projects
 
 #### Configure the service project
 
-> Note: if you used the setup scripts, the changes below will have been applied for you
+Note: if you had used the automation to setup your application mentioned in [Step 2:  Register the sample application with your Azure Active Directory tenant](#step-2-register-the-sample-application-with-your-azure-active-directory-tenant), the changes below would have been applied by the scripts.
 
 1. Open the `TodoListService\appsettings.json` file
 1. Find the app key `Domain` and replace the existing value with your Azure AD tenant name.
@@ -181,7 +181,7 @@ Open the solution in Visual Studio to configure the projects
 
 #### Configure the client project
 
-> Note: if you used the setup scripts, the changes below will have been applied for you
+Note: if you had used the automation to setup your application mentioned in [Step 2:  Register the sample application with your Azure Active Directory tenant](#step-2-register-the-sample-application-with-your-azure-active-directory-tenant), the changes below would have been applied by the scripts.
 
 1. Open the `Client\appsettings.json` file
 1. Find the app key `Domain` and replace the existing value with your Azure AD tenant name.
@@ -248,7 +248,7 @@ NOTE: Remember, the To-Do list is stored in memory in this `TodoListService` app
      by this line:
 
      ```CSharp
-     services.AddAzureAdV2Authentication(Configuration)
+     services.AddMicrosoftIdentityPlatformAuthentication(Configuration)
           .AddMsal(new string[] { Configuration["TodoList:TodoListScope"] })
           .AddInMemoryTokenCaches();
      ```
@@ -279,10 +279,16 @@ NOTE: Remember, the To-Do list is stored in memory in this `TodoListService` app
 1. Update the `configureServices` method in `startup.cs` to add the MSAL library and a token cache.
 
     ```CSharp
-     services.AddAzureAdV2Authentication(Configuration)
+     services.AddMicrosoftIdentityPlatformAuthentication(Configuration)
           .AddMsal(new string[] { Configuration["TodoList:TodoListScope"] })
           .AddInMemoryTokenCaches();
     ```
+1. Update the `Configure` method to include **app.UseAuthentication();** before **app.UseMvc();**  
+
+  ```Csharp
+     app.UseAuthentication();
+     app.UseMvc();
+  ```
 
 ### Creating the Web API project (TodoListService)
 
@@ -325,26 +331,23 @@ using Microsoft.Identity.Web.Client.TokenCacheProviders;
   with
 
   ```Csharp
-    services.AddProtectWebApiWithMicrosoftIdentityPlatformV2(Configuration)
+    services.AddProtectedWebApi(Configuration)
          .AddInMemoryTokenCaches();
   ```
+- Add the method **app.UseAuthentication()** before **app.UseMvc()** in the `Configure` method
 
-  `AddProtectWebApiWithMicrosoftIdentityPlatformV2` does the following:
+  ```Csharp
+     app.UseAuthentication();
+     app.UseMvc();
+  ```
+
+  `AddProtectedWebApi` does the following:
   - add the **Jwt**BearerAuthenticationScheme (Note the replacement of **BearerAuthenticationScheme** by **Jwt**BearerAuthenticationScheme)
   - set the authority to be the Microsoft identity platform identity
   - sets the audiences to validate
   - register an issuer validator that accepts issuers to be in the Microsoft identity platform clouds.
 
 The implementations of these classes are in the `Microsoft.Identity.Web` library (and folder), and they are designed to be reusable in your applications (Web apps and Web apis). You are encouraged to browse the code in the library to understand the changes in detail.
-
-- At the beginning of the `Configure` method, insert `app.UseSession()`. This code ensures that the session exists for the session-based token cache to work properly. You can skip this if you do not plan to use the session based token cache.
-
-  ```CSharp
-  public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-  {
-    app.UseSession();
-    ...
-  ```
 
 ### Create the TodoListController.cs file
 
@@ -413,6 +416,10 @@ In the left-hand navigation pane, select the **Azure Active Directory** service,
 
 > NOTE: Remember, the To Do list is stored in memory in this TodoListService sample. Azure Web Sites will spin down your web site if it is inactive, and your To Do list will get emptied.
 Also, if you increase the instance count of the web site, requests will be distributed among the instances. To Do will, therefore, not be the same on each instance.
+
+## Next steps
+
+If you're interested in the Web API calling a downstream API, you might want to have a look at the [ASP.NET Core Web API tutorial](https://github.com/Azure-Samples/active-directory-dotnet-native-aspnetcore-v2), in chapter 2 [2. Web API now calls Microsoft Graph/](https://github.com/Azure-Samples/active-directory-dotnet-native-aspnetcore-v2/tree/master/2.%20Web%20API%20now%20calls%20Microsoft%20Graph). The client is a desktop app there, whereas you have a Web App, but apart from that all the app registration steps apply.
 
 ## Community Help and Support
 
