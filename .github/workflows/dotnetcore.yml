@@ -14,10 +14,10 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Build with dotnet
-      run: cd Microsoft.Identity.Web && dotnet build --configuration Release
+      run: dotnet build --configuration Release Microsoft.Identity.Web/Microsoft.Identity.Web.csproj
     - name: pack for nuget
-      run: cd Microsoft.Identity.Web && dotnet pack -c Release -o out Microsoft.Identity.Web prerel
+      run: dotnet pack -c Release -o out Microsoft.Identity.Web prerel Microsoft.Identity.Web/Microsoft.Identity.Web.csproj
     - name: Publish nuget to github registry
-      run: cd Microsoft.Identity.Web && dotnet nuget push bin/Release/*.nupkg -s https://nuget.pkg.github.com/jpda/index.json -k ${GITHUB_TOKEN}  
+      run: dotnet nuget push Microsoft.Identity.Web/bin/Release/*.nupkg -s https://nuget.pkg.github.com/jpda/index.json -k ${GITHUB_TOKEN}  
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
