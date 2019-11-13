@@ -15,8 +15,6 @@ jobs:
         dotnet-version: 2.2.108
     - name: Build with dotnet
       run: cd Microsoft.Identity.Web && dotnet build --configuration Release
-    - name: Setup nuget config
-      run: sed 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' .nuget.config > nuget.config
     - name: pack for nuget
       run: dotnet pack -c Release -o out Microsoft.Identity.Web prerel
     - name: Publish nuget to github registry
